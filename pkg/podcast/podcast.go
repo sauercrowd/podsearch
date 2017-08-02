@@ -6,7 +6,8 @@ import (
 	"net/http"
 )
 
-type PodcastEpisode struct {
+//Episode is a episode belonging to a PodcastChannel
+type Episode struct {
 	Title       string `json:"title"`
 	Link        string `json:"url"`
 	PubDate     string `json:"date"`
@@ -14,16 +15,19 @@ type PodcastEpisode struct {
 	AudioURL    string `json:"audioUrl"`
 }
 
-type PodcastChannel struct {
-	Title       string           `json:"title"`
-	Link        string           `json:"url"`
-	Language    string           `json:"lang"`
-	Description string           `json:"description"`
-	ImageURL    string           `json:"imageUrl"`
-	Episodes    []PodcastEpisode `json:"episodes"`
+//Channel is a Podcast with episodes
+type Channel struct {
+	Title       string    `json:"title"`
+	Link        string    `json:"url"`
+	Language    string    `json:"lang"`
+	Description string    `json:"description"`
+	FeedURL     string    `json:"feedUrl"`
+	ImageURL    string    `json:"imageUrl"`
+	Episodes    []Episode `json:"episodes"`
 }
 
-func AddPodcastFromURL(url string) (*PodcastChannel, error) {
+//AddPodcastFromURL takes a feed url and creates a podcast with episodes from it, if possible
+func AddPodcastFromURL(url string) (*Channel, error) {
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -40,14 +44,14 @@ func AddPodcastFromURL(url string) (*PodcastChannel, error) {
 		log.Fatalf("Could not parse podcast feed: %v", err)
 		return nil, err
 	}
-	return createChannelFromXMLFeed(feed), nil
+	return createChannelFromXMLFeed(url, feed), nil
 }
 
-func createChannelFromXMLFeed(feed *podcastXMLFeed) *PodcastChannel {
-	episodes := make([]PodcastEpisode, len(feed.Items), len(feed.Items))
+func createChannelFromXMLFeed(url string, feed *podcastXMLFeed) *Channel {
+	episodes := make([]Episode, len(feed.Items), len(feed.Items))
 	//transfer items to episodes
 	for i := 0; i < len(episodes); i++ {
-		episodes[i] = PodcastEpisode{
+		episodes[i] = Episode{
 			feed.Items[i].Title,
 			feed.Items[i].Link,
 			feed.Items[i].PubDate,
@@ -55,11 +59,12 @@ func createChannelFromXMLFeed(feed *podcastXMLFeed) *PodcastChannel {
 			feed.Items[i].AudioURL.URL,
 		}
 	}
-	return &PodcastChannel{
+	return &Channel{
 		feed.Title,
 		feed.Link,
 		feed.Language,
 		feed.Description,
+		url,
 		feed.ImageURL,
 		episodes,
 	}

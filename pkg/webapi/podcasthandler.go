@@ -1,17 +1,60 @@
 package webapi
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/sauercrowd/podsearch/pkg/storage"
 
 	"github.com/sauercrowd/podsearch/pkg/podcast"
 )
 
-func AddPodcastHandler(ctx *WebContext, w http.ResponseWriter, r *http.Request) (int, error) {
-	log.Printf("Context: %v", ctx)
-	channel, err := podcast.AddPodcastFromURL("http://feeds.feedburner.com/GcpPodcast?format=xml")
+type addPodcastBody struct {
+	URL string `json:"url"`
+}
+
+// addPodcastHandler creates a new podcast, if none exists
+func addPodcastHandler(ctx *WebContext, w http.ResponseWriter, r *http.Request) (int, error) {
+	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal("Error")
+		log.Printf("AddPocastHandler: %v", err)
+		return http.StatusInternalServerError, nil
 	}
-	return sendJSON(channel, w)
+	var body addPodcastBody
+	if err := json.Unmarshal(bytes, &body); err != nil {
+		log.Printf("AddPocastHandler: %v", err)
+		return http.StatusBadRequest, nil
+	}
+	p, err := podcast.AddPodcastFromURL(body.URL)
+	if err != nil {
+		log.Printf("AddPocastHandler: %v", err)
+		return sendSimpleResponse(w, "invalid content at url", false)
+	}
+	code, err := storage.AddPodcast(ctx.DBConn, p)
+	if err != nil {
+		log.Printf("AddPocastHandler: %v", err)
+		return http.StatusInternalServerError, nil
+	}
+	if code == -1 {
+		return sendSimpleResponse(w, "podcast already exists", false)
+	}
+	ctx.Algolia.AddPodcast(p)
+	return sendSimpleResponse(w, "podcast added", true)
+}
+
+// getPodcastHandler returns a saved podcast based on its url, if available
+func getPodcastHandler(ctx *WebContext, w http.ResponseWriter, r *http.Request) (int, error) {
+	return 1, nil
+}
+
+// getPodcastsHandler returns a saved podcast based on its url, if available
+func getPodcastsHandler(ctx *WebContext, w http.ResponseWriter, r *http.Request) (int, error) {
+	podcasts, err := storage.GetPodcasts(ctx.DBConn)
+	if err != nil {
+		log.Printf("AddPocastHandler: %v", err)
+		return http.StatusInternalServerError, nil
+	}
+	return sendJSON(podcasts, w)
 }

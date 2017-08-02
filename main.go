@@ -8,6 +8,7 @@ import (
 	"database/sql"
 
 	_ "github.com/lib/pq"
+	"github.com/sauercrowd/podsearch/pkg/algolia"
 	"github.com/sauercrowd/podsearch/pkg/flags"
 	"github.com/sauercrowd/podsearch/pkg/storage"
 	"github.com/sauercrowd/podsearch/pkg/webapi"
@@ -25,9 +26,11 @@ func main() {
 		log.Fatalf("Could not create tables: %v", err)
 	}
 
-	context := &webapi.WebContext{DBConn: db}
+	alg := algolia.New(flags.AlgoliaID, flags.AlgoliaKey)
+	context := &webapi.WebContext{DBConn: db, Algolia: alg}
 	webapi.RegisterRoutes(context)
 
-	http.Handle("/", http.FileServer(http.Dir("./static"))) //TODO: Decide if handled by go server or by seperate nginx instance
+	//http.Handle("/", http.FileServer(http.Dir("./static"))) //TODO: Decide if handled by go server or by seperate nginx instance
+	log.Printf("Server listening on :%d", flags.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", flags.Port), nil))
 }
