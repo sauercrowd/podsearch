@@ -1,21 +1,12 @@
-package algolia
+package search
 
 import (
 	"github.com/algolia/algoliasearch-client-go/algoliasearch"
 	"github.com/sauercrowd/podsearch/pkg/podcast"
 )
 
-type PodcastAlgolia struct {
-	AlgoliaClient *algoliasearch.Client
-}
-
-func New(appID string, adminKey string) *PodcastAlgolia {
-	c := algoliasearch.NewClient(appID, adminKey)
-	return &PodcastAlgolia{AlgoliaClient: &c}
-}
-
-func (pa *PodcastAlgolia) AddPodcast(podcast *podcast.Channel) {
-	podcastIndex := (*pa.AlgoliaClient).InitIndex("podcasts")
+func (c *Config) AddPodcast(podcast *podcast.Channel) {
+	podcastIndex := (*c.AlgoliaClient).InitIndex("podcasts")
 	//	episodeIndex := (*pa.AlgoliaClient).InitIndex("episodes")
 	//	algoliapodcast := podcastToAlgolia(podcast)
 	//	podcastIndex.AddObject(algoliapodcast)

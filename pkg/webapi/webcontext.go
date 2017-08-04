@@ -3,11 +3,11 @@ package webapi
 import (
 	"database/sql"
 
-	"github.com/sauercrowd/podsearch/pkg/algolia"
+	"github.com/sauercrowd/podsearch/pkg/search"
 )
 
-// WebContext delivers environment for web handlers
-type WebContext struct {
-	DBConn  *sql.DB
-	Algolia *algolia.PodcastAlgolia
+// Context delivers environment for web handlers
+type Context struct {
+	DBConn *sql.DB
+	Search *search.Config
 }

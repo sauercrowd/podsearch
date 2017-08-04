@@ -1,0 +1,5 @@
+vendor/
+podsearch
+.vscode/
+docker-compose.yml
+debug

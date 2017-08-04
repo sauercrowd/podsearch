@@ -11,12 +11,12 @@ import (
 
 // WebHandler is a special handler for http.Handle to pass additional context to handler funtions
 type WebHandler struct {
-	*WebContext
-	Handler func(*WebContext, http.ResponseWriter, *http.Request) (int, error)
+	*Context
+	Handler func(*Context, http.ResponseWriter, *http.Request) (int, error)
 }
 
 func (wh WebHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	status, err := wh.Handler(wh.WebContext, w, r)
+	status, err := wh.Handler(wh.Context, w, r)
 	if err != nil {
 		log.Printf("HTTP %d: %q", status, err)
 		switch status {
@@ -41,11 +41,11 @@ func sendJSON(data interface{}, w http.ResponseWriter) (int, error) {
 }
 
 // RegisterRoutes creates all routes and applies it to http.Handle
-func RegisterRoutes(ctx *WebContext) {
+func RegisterRoutes(ctx *Context) {
 	r := mux.NewRouter()
-	r.HandleFunc("/api/v1/podcast", WebHandler{WebContext: ctx, Handler: addPodcastHandler}.ServeHTTP).Methods("POST")
-	r.HandleFunc("/api/v1/podcast", WebHandler{WebContext: ctx, Handler: getPodcastHandler}.ServeHTTP).Methods("GET").Queries("url", "{url:.}")
-	r.HandleFunc("/api/v1/podcast", WebHandler{WebContext: ctx, Handler: getPodcastsHandler}.ServeHTTP).Methods("GET")
+	r.HandleFunc("/api/v1/podcast", WebHandler{Context: ctx, Handler: addPodcastHandler}.ServeHTTP).Methods("POST")
+	r.HandleFunc("/api/v1/podcast", WebHandler{Context: ctx, Handler: getPodcastHandler}.ServeHTTP).Methods("GET").Queries("url", "{url:.}")
+	r.HandleFunc("/api/v1/podcast", WebHandler{Context: ctx, Handler: getPodcastsHandler}.ServeHTTP).Methods("GET")
 
 	http.Handle("/", r)
 	listRoutes(r)

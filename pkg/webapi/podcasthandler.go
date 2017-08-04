@@ -16,7 +16,7 @@ type addPodcastBody struct {
 }
 
 // addPodcastHandler creates a new podcast, if none exists
-func addPodcastHandler(ctx *WebContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func addPodcastHandler(ctx *Context, w http.ResponseWriter, r *http.Request) (int, error) {
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("AddPocastHandler: %v", err)
@@ -40,17 +40,17 @@ func addPodcastHandler(ctx *WebContext, w http.ResponseWriter, r *http.Request) 
 	if code == -1 {
 		return sendSimpleResponse(w, "podcast already exists", false)
 	}
-	ctx.Algolia.AddPodcast(p)
+	ctx.Search.AddPodcast(p)
 	return sendSimpleResponse(w, "podcast added", true)
 }
 
 // getPodcastHandler returns a saved podcast based on its url, if available
-func getPodcastHandler(ctx *WebContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func getPodcastHandler(ctx *Context, w http.ResponseWriter, r *http.Request) (int, error) {
 	return 1, nil
 }
 
 // getPodcastsHandler returns a saved podcast based on its url, if available
-func getPodcastsHandler(ctx *WebContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func getPodcastsHandler(ctx *Context, w http.ResponseWriter, r *http.Request) (int, error) {
 	podcasts, err := storage.GetPodcasts(ctx.DBConn)
 	if err != nil {
 		log.Printf("AddPocastHandler: %v", err)
