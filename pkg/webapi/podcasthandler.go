@@ -40,7 +40,7 @@ func addPodcastHandler(ctx *Context, w http.ResponseWriter, r *http.Request) (in
 	if code == -1 {
 		return sendSimpleResponse(w, "podcast already exists", false)
 	}
-	ctx.Search.AddPodcast(p)
+	ctx.Search.AddPodcast(*p)
 	return sendSimpleResponse(w, "podcast added", true)
 }
 

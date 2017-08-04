@@ -43,10 +43,11 @@ func sendJSON(data interface{}, w http.ResponseWriter) (int, error) {
 // RegisterRoutes creates all routes and applies it to http.Handle
 func RegisterRoutes(ctx *Context) {
 	r := mux.NewRouter()
-	r.HandleFunc("/api/v1/podcast", WebHandler{Context: ctx, Handler: addPodcastHandler}.ServeHTTP).Methods("POST")
-	r.HandleFunc("/api/v1/podcast", WebHandler{Context: ctx, Handler: getPodcastHandler}.ServeHTTP).Methods("GET").Queries("url", "{url:.}")
-	r.HandleFunc("/api/v1/podcast", WebHandler{Context: ctx, Handler: getPodcastsHandler}.ServeHTTP).Methods("GET")
-
+	r.Handle("/api/v1/podcast", WebHandler{Context: ctx, Handler: addPodcastHandler}).Methods("POST")
+	r.Handle("/api/v1/podcast", WebHandler{Context: ctx, Handler: getPodcastHandler}).Methods("GET").Queries("url", "{url:.}")
+	r.Handle("/api/v1/podcast", WebHandler{Context: ctx, Handler: getPodcastsHandler}).Methods("GET")
+	r.Handle("/api/v1/search", WebHandler{Context: ctx, Handler: searchHandler}).Methods("GET").Queries("term", "{term:.*}")
+	r.Handle("/api/v1/search/ws", WebHandler{Context: ctx, Handler: searchWebsocketHandler}).Methods("GET")
 	http.Handle("/", r)
 	listRoutes(r)
 }

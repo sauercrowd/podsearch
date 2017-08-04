@@ -12,7 +12,7 @@ func setupPodcastTables(db *sql.DB) error {
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
-	err = db.QueryRow("CREATE TABLE IF NOT EXISTS podcastepisodes(podcasturl text references podcasts(url) NOT NULL, title text NOT NULL, url text NOT NULL, pubdate date, description text, audiourl text)").Scan()
+	err = db.QueryRow("CREATE TABLE IF NOT EXISTS podcastepisodes(podcasturl text references podcasts(url) NOT NULL, title text NOT NULL, url text NOT NULL, pubdate text, description text, audiourl text)").Scan()
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}

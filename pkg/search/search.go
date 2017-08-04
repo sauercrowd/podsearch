@@ -7,6 +7,7 @@ import (
 
 	"github.com/algolia/algoliasearch-client-go/algoliasearch"
 	"github.com/sauercrowd/podsearch/pkg/flags"
+	"github.com/sauercrowd/podsearch/pkg/podcast"
 	"gopkg.in/olivere/elastic.v5"
 )
 
@@ -29,5 +30,37 @@ func New(flags flags.Flags) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Config{AlgoliaClient: &ac, ElasticClient: ec}, nil
+	c := &Config{AlgoliaClient: &ac, ElasticClient: ec}
+	err = c.createElasticseachIndex(elasticIndex)
+	//create elasticsearch index if not exsists
+	return c, err
+}
+
+const elasticIndex = "podcasts"
+
+func (c *Config) AddPodcast(podcast podcast.Channel) error {
+	if err := c.episodeToAlgolia(podcast); err != nil {
+		return err
+	}
+	if err := c.episodesToElasticsearch(podcast, elasticIndex); err != nil {
+		return err
+	}
+	return nil
+}
+
+type SearchEpisode struct {
+	Title              string `json:"title"`
+	Description        string `json:"description"`
+	Podcast            string `json:"podcast"`
+	ImageURL           string `json:"imageurl"`
+	FeedURL            string `json:"feedurl"`
+	Language           string `json:"language"`
+	PodcastDescription string `json:"podcastDescription"`
+	PubDate            string `json:"pubdate"`
+	AudioURL           string `json:"audiourl"`
+	Link               string `json:"link"`
+}
+
+func (c *Config) SearchEpisodes(term string) ([]SearchEpisode, error) {
+	return c.elasticSearch(term, elasticIndex)
 }

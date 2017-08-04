@@ -1,22 +1,16 @@
 package search
 
 import (
+	"log"
+
 	"github.com/algolia/algoliasearch-client-go/algoliasearch"
 	"github.com/sauercrowd/podsearch/pkg/podcast"
 )
 
-func (c *Config) AddPodcast(podcast *podcast.Channel) {
-	podcastIndex := (*c.AlgoliaClient).InitIndex("podcasts")
-	//	episodeIndex := (*pa.AlgoliaClient).InitIndex("episodes")
-	//	algoliapodcast := podcastToAlgolia(podcast)
-	//	podcastIndex.AddObject(algoliapodcast)
-	algoliaepisodes := episodeToAlgolia(*podcast, podcast.Episodes)
-	podcastIndex.AddObjects(algoliaepisodes)
-}
-
-func episodeToAlgolia(p podcast.Channel, episode []podcast.Episode) []algoliasearch.Object {
-	m := make([]algoliasearch.Object, 0)
-	for _, e := range episode {
+func (c *Config) episodeToAlgolia(p podcast.Channel) error {
+	algIndex := (*c.AlgoliaClient).InitIndex("podcasts")
+	algoliaepisodes := make([]algoliasearch.Object, 0)
+	for _, e := range p.Episodes {
 		ae := algoliasearch.Object{
 			"podcast":            p.Title,
 			"imageurl":           p.ImageURL,
@@ -29,18 +23,13 @@ func episodeToAlgolia(p podcast.Channel, episode []podcast.Episode) []algoliasea
 			"audiourl":           e.AudioURL,
 			"link":               e.Link,
 		}
-		m = append(m, ae)
+		algoliaepisodes = append(algoliaepisodes, ae)
 	}
-	return m
-}
-
-func podcastToAlgolia(podcast *podcast.Channel) algoliasearch.Object {
-	return algoliasearch.Object{
-		"title":       podcast.Title,
-		"description": podcast.Description,
-		"imageurl":    podcast.ImageURL,
-		"url":         podcast.Link,
-		"feedurl":     podcast.FeedURL,
-		"language":    podcast.Language,
+	//batchRes not needed
+	_, err := algIndex.AddObjects(algoliaepisodes)
+	if err != nil {
+		log.Println("Could not add podcast to algolia: ", err)
+		return err
 	}
+	return nil
 }

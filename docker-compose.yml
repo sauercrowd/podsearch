@@ -13,7 +13,7 @@ services:
       - "ELASTICUSER=elastic"
       - "ELASTICPASS=changeme"
       - "PUSER=root"
-    command: ["podsearch","-env", "-wait"]
+    command: podsearch -env -wait
     depends_on:
       - db
       - search
@@ -29,3 +29,10 @@ services:
     environment:
     - "http.host=0.0.0.0"
     - "transport.host=127.0.0.1"
+    - "http.cors.allow-origin=*"
+    - "http.cors.enabled=true"
+    - "http.cors.allow-headers=*"
+    - "http.cors.allow-credentials=true"
+    - "http.cors.allow-methods=*"
+    ports:
+      - "127.0.0.1:9200:9200"
