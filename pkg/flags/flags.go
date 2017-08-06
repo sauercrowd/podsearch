@@ -7,48 +7,39 @@ import "strconv"
 type Flags struct {
 	Phost, Puser, Ppassword, Pdb, AlgoliaID, AlgoliaKey, ElasticHost, ElasticUser, ElasticPassword string
 	Port, Pport, ElasticPort                                                                       int
-	Wait                                                                                           bool
+	Wait, NoAlgolia                                                                                bool
 }
 
 func ParseFlags() Flags {
-	phost := flag.String("phost", "127.0.0.1", "Postgres host")
-	puser := flag.String("puser", "postgres", "Postgres user")
-	ppassword := flag.String("ppassword", "postgres", "Postgres password")
-	pdb := flag.String("pdatabase", "podsearch", "Postgres database")
-	pport := flag.Int("pport", 5432, "Postgres port")
-	port := flag.Int("port", 8080, "Port on the API should listen on")
-	algoliaID := flag.String("algoliaid", "", "Algolia AppID")
-	algoliaKey := flag.String("algoliakey", "", "Algolia Admin Key")
-	elasticHost := flag.String("elastichost", "127.0.0.1", "Elasticsearch host")
-	elasticPort := flag.Int("elasticport", 9200, "Elasticsearch port")
-	elasticUser := flag.String("elasticuser", "elastic", "Elasticsearch user")
-	elasticPass := flag.String("elasticpassword", "changeme", "Elasticsearch pass")
+	var r Flags
+
+	flag.StringVar(&r.Phost, "phost", "127.0.0.1", "Postgres host")
+	flag.StringVar(&r.Puser, "puser", "postgres", "Postgres user")
+	flag.StringVar(&r.Ppassword, "ppassword", "postgres", "Postgres password")
+	flag.StringVar(&r.Pdb, "pdatabase", "podsearch", "Postgres database")
+	flag.IntVar(&r.Pport, "pport", 5432, "Postgres port")
+	flag.IntVar(&r.Port, "port", 8080, "Port on the API should listen on")
+	flag.StringVar(&r.AlgoliaID, "algoliaid", "", "Algolia AppID")
+	flag.StringVar(&r.AlgoliaKey, "algoliakey", "", "Algolia Admin Key")
+	flag.StringVar(&r.ElasticHost, "elastichost", "127.0.0.1", "Elasticsearch host")
+	flag.IntVar(&r.ElasticPort, "elasticport", 9200, "Elasticsearch port")
+	flag.StringVar(&r.ElasticUser, "elasticuser", "elastic", "Elasticsearch user")
+	flag.StringVar(&r.ElasticPassword, "elasticpassword", "changeme", "Elasticsearch pass")
 
 	useEnv := flag.Bool("env", false, "Use Environment Variables instead of cmd line parameters; gets every other option from corresponding uppercase environment variables")
-	wait := flag.Bool("wait", false, "Do not exit if database or search are not available, wait instead")
+	flag.BoolVar(&r.Wait, "wait", false, "Do not exit if database or search are not available, wait instead")
+	flag.BoolVar(&r.NoAlgolia, "noalgolia", false, "Do not use algolia (e.g. for testing)")
+
 	flag.Parse()
 
 	//if useEnv, grab variables from environment
 	if *useEnv {
 		f := ParseFromEnv()
-		f.Wait = *wait
+		f.Wait = r.Wait
+		f.NoAlgolia = r.NoAlgolia
 		return f
 	}
-	return Flags{
-		Phost:           *phost,
-		Puser:           *puser,
-		Ppassword:       *ppassword,
-		Pport:           *pport,
-		Port:            *port,
-		Pdb:             *pdb,
-		AlgoliaID:       *algoliaID,
-		AlgoliaKey:      *algoliaKey,
-		ElasticHost:     *elasticHost,
-		ElasticPort:     *elasticPort,
-		ElasticUser:     *elasticUser,
-		ElasticPassword: *elasticPass,
-		Wait:            *wait,
-	}
+	return r
 }
 
 // ParseFromEnv parse the flags from environment
