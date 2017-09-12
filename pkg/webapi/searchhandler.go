@@ -8,7 +8,7 @@ import (
 )
 
 func searchHandler(ctx *Context, w http.ResponseWriter, r *http.Request) (int, error) {
-	term := mux.Vars(r)["term"]
+	term := mux.Vars(r)["q"]
 	results, err := ctx.Search.SearchEpisodes(term)
 	if err != nil {
 		log.Println("Could not search for epsiodes: ", err)

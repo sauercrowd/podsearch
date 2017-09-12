@@ -46,7 +46,7 @@ func RegisterRoutes(ctx *Context) {
 	r.Handle("/api/v1/podcast", WebHandler{Context: ctx, Handler: addPodcastHandler}).Methods("POST")
 	r.Handle("/api/v1/podcast", WebHandler{Context: ctx, Handler: getPodcastHandler}).Methods("GET").Queries("url", "{url:.}")
 	r.Handle("/api/v1/podcast", WebHandler{Context: ctx, Handler: getPodcastsHandler}).Methods("GET")
-	r.Handle("/api/v1/search", WebHandler{Context: ctx, Handler: searchHandler}).Methods("GET").Queries("term", "{term:.*}")
+	r.Handle("/api/v1/search", WebHandler{Context: ctx, Handler: searchHandler}).Methods("GET").Queries("q", "{q:.*}")
 	r.Handle("/api/v1/search/ws", WebHandler{Context: ctx, Handler: searchWebsocketHandler}).Methods("GET")
 	http.Handle("/", r)
 	listRoutes(r)

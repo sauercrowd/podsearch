@@ -28,7 +28,7 @@ func ParseFlags() Flags {
 
 	useEnv := flag.Bool("env", false, "Use Environment Variables instead of cmd line parameters; gets every other option from corresponding uppercase environment variables")
 	flag.BoolVar(&r.Wait, "wait", false, "Do not exit if database or search are not available, wait instead")
-	flag.BoolVar(&r.NoAlgolia, "noalgolia", false, "Do not use algolia (e.g. for testing)")
+	flag.BoolVar(&r.NoAlgolia, "noalgolia", false, "Do not use algolia")
 
 	flag.Parse()
 
